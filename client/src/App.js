@@ -5,8 +5,6 @@ import Tasks from './pages/Tasks';
 import Stats from './pages/Stats';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
-import Card from '@material-ui/core/Card';
-import CardContent from "@material-ui/core/CardContent";
 
 function App() {
 

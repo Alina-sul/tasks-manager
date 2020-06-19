@@ -1,10 +1,12 @@
+//import {route} from "express";
+
 const express = require('express');
 const path = require('path');
 const app = express();
 const cors = require('cors');
 const port = process.env.PORT || 5000;
 const router = express.Router();
-
+//const test = require('./dbFunctions.js');
 const mongoose = require('mongoose');
 const mongoDB = 'mongodb://0.0.0.0/my_database';
 
@@ -15,9 +17,12 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 db.on('connected', console.error.bind(console, 'MongoDB connected:'));
 db.on('open', console.error.bind(console, 'MongoDB open:'));
 
+
 const TaskSchema = new Schema({
-    id: Number,
-    date: Date,
+    date: {
+        type: Date,
+        default: Date.now()
+    },
     content: {
         type: String,
         maxlength: 100
@@ -32,13 +37,20 @@ const TaskSchema = new Schema({
 const Tasks = mongoose.model('Tasks', TaskSchema );
 
 
-
-
+console.log('test');
 
 app.use(cors());
-app.use(express.static(path.join(__dirname, 'client/build')));
-app.get('*', (req,res) => {
-    res.sendFile(path.join(__dirname + '/client/build/index.html'));
+// app.use(express.static(path.join(__dirname, 'client/build')));
+// app.get('*', (req,res) => {
+//     res.sendFile(path.join(__dirname + '/client/build/index.html'));
+// });
+
+app.get('/get-data', (req, res) => {
+    Tasks.find((err, data) => {
+        if (err) return res(console.log('Error!',err));
+        console.log(data);
+        return res.send(data);
+    });
 });
 
 app.listen(port, () => console.log(`App listening at http://localhost:${port}`));
