@@ -40,17 +40,19 @@ const Tasks = mongoose.model('Tasks', TaskSchema );
 console.log('test');
 
 app.use(cors());
-// app.use(express.static(path.join(__dirname, 'client/build')));
-// app.get('*', (req,res) => {
-//     res.sendFile(path.join(__dirname + '/client/build/index.html'));
-// });
+app.use(express.json());
+
 
 app.get('/get-data', (req, res) => {
     Tasks.find((err, data) => {
         if (err) return res(console.log('Error!',err));
-        console.log(data);
         return res.send(data);
     });
 });
+
+app.post('/add-task', function(req, res) {
+    console.log(req.body);
+});
+
 
 app.listen(port, () => console.log(`App listening at http://localhost:${port}`));

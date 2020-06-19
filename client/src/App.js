@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Switch, NavLink } from 'react-router-dom';
+import { Redirect, Route, Switch, NavLink } from 'react-router-dom';
 import './App.sass';
 import Tasks from './pages/Tasks';
 import Stats from './pages/Stats';
@@ -31,7 +31,7 @@ function App() {
                 <Tasks />
             </Route>
             <Route path="/">
-                <Tasks />
+                <Redirect to="/tasks/pending" />
             </Route>
         </Switch>
     </div>

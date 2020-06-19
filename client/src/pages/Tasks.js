@@ -2,23 +2,15 @@ import React from 'react';
 import TextField from '@material-ui/core/TextField';
 import func from '../functions.js';
 import axios from 'axios';
-
-import {useQuery} from 'react-query';
-import Checkbox from '@material-ui/core/Checkbox';
-import Card from '@material-ui/core/Card';
-import CardActionArea from '@material-ui/core/CardActionArea';
-import CardActions from '@material-ui/core/CardActions';
-import CardContent from '@material-ui/core/CardContent';
+import {NavLink, Route, Switch} from 'react-router-dom';
 import Button from '@material-ui/core/Button';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
+import ButtonGroup from "@material-ui/core/ButtonGroup";
+import Stats from "./Stats";
 
 
 function Tasks() {
     const [value, setValue] = React.useState('');
     const [tasks, setTasks] = React.useState([]);
-    const { status, data, error } = useQuery("data",func.getData, {
-        initialData:[]
-    });
 
 
     const handleChange = (event) => {
@@ -26,44 +18,20 @@ function Tasks() {
         console.log(event.target.value);
 
     };
-    const createCard = (task) => {
-        return <Card className='card'>
-            <CardActionArea>
-                <CardContent>
-                    {task.content}
-                </CardContent>
-            </CardActionArea>
-            <CardActions>
-                <Button size="small" color="#1b1b1b">
-                    <FormControlLabel
-                        control={<Checkbox checked={false} onChange={(e)=>console.log(e)} name="task.id" />}
-                        label="Done"
-                        labelPlacement="end"
-                    />
-                </Button>
-            </CardActions>
-        </Card>
-    };
 
     function submitInput(e){
         e.preventDefault();
         console.log('submitted',value);
 
-        let tag = '';
         const tagMention = value.search('#');
 
-        if(tagMention !== -1) {
-            tag = value.slice(tagMention + 1, value.length);
-            setValue(value.slice(0, tagMention));
-        }
-
         const task = {
-                content: value,
+                content: tagMention !== -1 ? value.slice(0, tagMention) : value,
                 status: 'pending',
-                tag: tag
+                tag: tagMention !== -1 ? value.slice(tagMention + 1, value.length) : ''
             };
 
-
+        func.addTask(task);
 
         console.log('task', task)
 
@@ -96,7 +64,7 @@ function Tasks() {
         axios.get('http://localhost:5000/get-data').then(
             res => {
                 const tasks = res.data;
-                console.log(tasks)
+                console.log(tasks);
                 setTasks(tasks);
             }
         )
@@ -114,10 +82,32 @@ function Tasks() {
                     <submit type="submit"/>
                 </form>
             </div>
+
+            <div className="tab-bar">
+                <NavLink to="/tasks/pending" className="link-tab" activeClassName="active-link-tab">
+                    <Button color='inherit' >pending</Button>
+                </NavLink>
+                <NavLink to="/tasks/done" activeClassName="active-link-tab">
+                    <Button color='inherit'>done</Button>
+                </NavLink>
+
+            </div>
+
             <div className='grid'>
-                {
-                    tasks.map(x => func.createCard(x))
-                }
+                <Switch>
+                    <Route path="/tasks/pending">
+                        {
+                            tasks.map(x => x.status === 'pending' ? func.createCard(x): null)
+                        }
+                    </Route>
+                    <Route path="/tasks/done">
+                        {
+                            tasks.map(x => x.status === 'done' ? func.createCard(x): null)
+                        }
+                    </Route>
+                </Switch>
+
+
             </div>
         </>
     );
