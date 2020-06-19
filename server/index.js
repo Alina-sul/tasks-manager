@@ -33,25 +33,28 @@ const TaskSchema = new Schema({
     },
     tag: String
 });
+const Task = mongoose.model('Task', TaskSchema );
 
-const Tasks = mongoose.model('Tasks', TaskSchema );
-
-
-console.log('test');
 
 app.use(cors());
 app.use(express.json());
 
 
 app.get('/get-data', (req, res) => {
-    Tasks.find((err, data) => {
+    Task.find((err, data) => {
         if (err) return res(console.log('Error!',err));
         return res.send(data);
     });
 });
 
-app.post('/add-task', function(req, res) {
-    console.log(req.body);
+app.post('/add-task', async function(req, res) {
+    const task = new Task({
+        content: req.body.content,
+        tag: req.body.tag,
+        status: req.body.status
+    });
+    await task.save();
+    await res.send(task);
 });
 
 

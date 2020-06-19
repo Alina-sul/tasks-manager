@@ -2,7 +2,7 @@ import React from 'react';
 import TextField from '@material-ui/core/TextField';
 import func from '../functions.js';
 import axios from 'axios';
-import {NavLink, Route, Switch} from 'react-router-dom';
+import {NavLink, Redirect, Route, Switch} from 'react-router-dom';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from "@material-ui/core/ButtonGroup";
 import Stats from "./Stats";
@@ -11,29 +11,42 @@ import Stats from "./Stats";
 function Tasks() {
     const [value, setValue] = React.useState('');
     const [tasks, setTasks] = React.useState([]);
-
-
+    const getData = () => {
+        axios.get('http://localhost:5000/get-data').then(
+            res => {
+                const tasks = res.data;
+                setTasks(tasks);
+            }
+        )
+    };
+    const addTask = (input) => {
+        return axios
+            .post('http://localhost:5000/add-task', input)
+            };
     const handleChange = (event) => {
         setValue(event.target.value);
         console.log(event.target.value);
 
     };
 
-    function submitInput(e){
+    const submitInput = (e) => {
         e.preventDefault();
         console.log('submitted',value);
-
         const tagMention = value.search('#');
-
         const task = {
                 content: tagMention !== -1 ? value.slice(0, tagMention) : value,
                 status: 'pending',
                 tag: tagMention !== -1 ? value.slice(tagMention + 1, value.length) : ''
             };
 
-        func.addTask(task);
+        addTask(task).then((response) =>
+        console.log(tasks);
+            setTasks());
+            .catch(err => {
+                console.error(err);
+            });
+        setValue('');
 
-        console.log('task', task)
 
     }
 
@@ -61,13 +74,7 @@ function Tasks() {
     // }
 
     React.useEffect(() => {
-        axios.get('http://localhost:5000/get-data').then(
-            res => {
-                const tasks = res.data;
-                console.log(tasks);
-                setTasks(tasks);
-            }
-        )
+        getData()
     },[]);
     return (
         <>
@@ -104,6 +111,9 @@ function Tasks() {
                         {
                             tasks.map(x => x.status === 'done' ? func.createCard(x): null)
                         }
+                    </Route>
+                    <Route path="/tasks">
+                        <Redirect to="/tasks/pending" />
                     </Route>
                 </Switch>
 

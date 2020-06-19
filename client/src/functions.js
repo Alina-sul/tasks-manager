@@ -10,13 +10,6 @@ import ClearIcon from '@material-ui/icons/Clear';
 import React from "react";
 
 const func = {
-    addTask: (task) => {
-        axios
-        .post('http://localhost:5000/add-task', task)
-        .then(() => console.log(task))
-        .catch(err => {
-            console.error(err);
-        })},
     createCard: (task) => {
         return <Card className='card'>
 
