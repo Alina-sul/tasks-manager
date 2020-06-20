@@ -45,10 +45,33 @@ const done = () => Task.countDocuments({status: 'done'});
 router.get('/get-tasks', (req, res) => {
     Task.find( async (err, data) => {
         if (err) return res(console.log('Error!',err));
+        const tagsArray = data.reduce((acc,v,i) => {
+            if(i === 0) {
+                return acc = acc.concat([{
+                    name:v.tag,
+                    pending: v.status === 'pending' ? 1 : 0,
+                    done: v.status === 'done' ? 1 : 0
+                }]);
+            }
+            if(i > 0){
+                const check = acc.findIndex(({name}) => name === v.tag);
+                if(check === -1) {
+                    return acc = acc.concat([{
+                        name:v.tag,
+                        pending: v.status === 'pending' ? 1 : 0,
+                        done: v.status === 'done' ? 1 : 0
+                    }]);
+                } else {
+                    v.status === 'pending' ? acc[check].pending += 1 : acc[check].done += 1;
+                    return acc
+                }
+            }
+        },[]);
          res.send({
             data: data,
             pendingCount: await pending(),
-            doneCount: await done()
+            doneCount: await done(),
+            tags: tagsArray
         });
     });
 });
