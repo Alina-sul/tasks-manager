@@ -39,38 +39,43 @@ const Task = mongoose.model('Task', TaskSchema );
 app.use(cors());
 app.use(express.json());
 
+const pending = () => Task.countDocuments({status: 'pending'});
+const done = () => Task.countDocuments({status: 'done'});
 
-app.get('/get-data', (req, res) => {
-    Task.find((err, data) => {
+router.get('/get-tasks', (req, res) => {
+    Task.find( async (err, data) => {
         if (err) return res(console.log('Error!',err));
-        return res.send(data);
+         res.send({
+            data: data,
+            pendingCount: await pending(),
+            doneCount: await done()
+        });
     });
 });
-
-app.post('/add-task', async function(req, res) {
-    const task = new Task({
-        content: req.body.content,
-        tag: req.body.tag,
-        status: req.body.status
-    });
-    await task.save((err) => {
-        if (err) return res.status(500).send(err);
-        return res.status(200).send(task)
-    });
-});
-app.post('/remove-task', async function(req, res) {
+router.post('/add-task', async function(req, res) {
+     const task = new Task({
+         content: req.body.content,
+         tag: req.body.tag,
+         status: req.body.status
+     });
+     await task.save((err) => {
+         if (err) return res.status(500).send(err);
+         return res.status(200).send(task)
+     });
+ });
+router.post('/remove-task', async function(req, res) {
     const task = req.body;
     console.log(task);
-    Task.findByIdAndRemove(task.id, (err,item) => {
+    Task.findByIdAndRemove(task.id, (err) => {
         if(err) return res.status(500).send(err);
         const response = {
             message: "task is deleted",
-            id: item._id
+            id: task.id
         };
         return res.status(200).send(response)
     })
 });
-app.post('/update-status', async function(req, res) {
+router.put('/update-status', async function(req, res) {
     const task = req.body;
 
     console.log(task);
@@ -83,6 +88,18 @@ app.post('/update-status', async function(req, res) {
         return res.status(200).send(response)
     })
 });
+//
+// router.get('/tasks/:id', (req, res) => {
+//     console.log('res.params.id', res.params.id)
+//     console.log('req', req.query)
+//     Task.findOne(req.query, (err, data) => {
+//         if (err) return res(console.log('Error!',err));
+//         return res.send(data);
+//     });
+// });
+
+
+app.use(router);
 
 
 app.listen(port, () => console.log(`App listening at http://localhost:${port}`));
