@@ -53,8 +53,35 @@ app.post('/add-task', async function(req, res) {
         tag: req.body.tag,
         status: req.body.status
     });
-    await task.save();
-    await res.send(task);
+    await task.save((err) => {
+        if (err) return res.status(500).send(err);
+        return res.status(200).send(task)
+    });
+});
+app.post('/remove-task', async function(req, res) {
+    const task = req.body;
+    console.log(task);
+    Task.findByIdAndRemove(task.id, (err,item) => {
+        if(err) return res.status(500).send(err);
+        const response = {
+            message: "task is deleted",
+            id: item._id
+        };
+        return res.status(200).send(response)
+    })
+});
+app.post('/update-status', async function(req, res) {
+    const task = req.body;
+
+    console.log(task);
+    Task.findByIdAndUpdate(task.id, task, (err) => {
+        if(err) return res.status(500).send(err);
+        const response = {
+            message: "task is updated",
+            status: task.status
+        };
+        return res.status(200).send(response)
+    })
 });
 
 
