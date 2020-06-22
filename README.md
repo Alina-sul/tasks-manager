@@ -1,2 +1,2 @@
 # tasks-manager
- basic todo-list fullstack app
+* #[tagname] at the end of the input will add a tag to the task
